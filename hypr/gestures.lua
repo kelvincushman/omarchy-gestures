@@ -2,6 +2,8 @@
 --
 -- Gestures are stored as data in ~/.config/omarchy/gestures.conf, one per line:
 --   <fingers> <direction> <action>
+-- plus optional settings lines:
+--   option swipe_empty on|off   slide through empty workspaces (default on)
 -- Every field is checked against the fixed lists below, so the file can never
 -- inject code into the compositor config. Unknown lines are skipped.
 
@@ -80,7 +82,15 @@ local function claim(fingers, direction)
   return true
 end
 
+-- On by default: Omarchy treats workspaces 1-10 as fixed (Super+1...), but
+-- Hyprland's swipe otherwise stops at the first empty workspace.
+local swipe_empty = true
+
 for line in file:lines() do
+  local value = line:match("^%s*option%s+swipe_empty%s+(%a+)%s*$")
+  if value then
+    swipe_empty = value ~= "off"
+  end
   local fingers, direction, name = line:match("^%s*(%d+)%s+(%a+)%s+([%w_]+)%s*$")
   fingers = tonumber(fingers)
   local action = name and actions[name]
@@ -99,3 +109,5 @@ for line in file:lines() do
 end
 
 file:close()
+
+hl.config({ gestures = { workspace_swipe_use_r = swipe_empty } })

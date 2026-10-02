@@ -1,8 +1,9 @@
 #!/bin/bash
 # Gestures panel helper: read state, save gestures, and turn the loader on or off.
 #
-#   gestures status              JSON: enabled, drag3fg, rules
-#   gestures save "3 left apps"  replace all gestures (one argument per gesture)
+#   gestures status              JSON: enabled, drag3fg, swipeEmpty, rules
+#   gestures save "3 left apps"  replace all gestures (one argument per gesture,
+#                                plus optional "option swipe_empty on|off")
 #   gestures enable | disable    add or remove the loader line in hyprland.lua
 
 set -euo pipefail
@@ -28,14 +29,15 @@ reload() {
 case "${1-}" in
   status)
     rules=$( [[ -f $conf ]] && grep -E '^[0-9]+ [a-z]+ [a-z_]+$' "$conf" || true)
+    swipe_empty=$( [[ -f $conf ]] && grep -qx 'option swipe_empty off' "$conf" && echo false || echo true)
     drag=$(hyprctl getoption input:touchpad:drag_3fg -j | jq '.int // 0')
-    jq -n --argjson enabled "$(enabled && echo true || echo false)" --argjson drag "$drag" --arg rules "$rules" \
-      '{ enabled: $enabled, drag3fg: ($drag > 0), rules: ($rules | split("\n") | map(select(. != ""))) }'
+    jq -n --argjson enabled "$(enabled && echo true || echo false)" --argjson drag "$drag" --argjson swipe "$swipe_empty" --arg rules "$rules" \
+      '{ enabled: $enabled, drag3fg: ($drag > 0), swipeEmpty: $swipe, rules: ($rules | split("\n") | map(select(. != ""))) }'
     ;;
   save)
     shift
     for rule in "$@"; do
-      [[ $rule =~ ^[2-5]\ [a-z]+\ [a-z_]+$ ]] || { echo "Invalid gesture: $rule" >&2; exit 1; }
+      [[ $rule =~ ^[2-5]\ [a-z]+\ [a-z_]+$ || $rule =~ ^option\ swipe_empty\ (on|off)$ ]] || { echo "Invalid gesture: $rule" >&2; exit 1; }
     done
     mkdir -p "$(dirname "$conf")"
     tmp=$(mktemp "$conf.XXXXXX")

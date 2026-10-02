@@ -38,6 +38,11 @@ Click the hand icon in the bar, then flip the switch to turn gestures on.
   - scratchpad, zoom
   - volume, brightness, screenshot
 
+**Slide through empty workspaces** (on by default) lets a workspace swipe
+reach 3, 4, 5 and so on, like Super+number, even when they have no windows.
+Hyprland's own behaviour, which you get by turning it off, stops at the last
+workspace that has windows.
+
 The panel flags gestures that would clash, for example "left" on the same
 fingers as "left or right". It also warns when three-finger drag (`drag_3fg`)
 is on, because that captures 3-finger swipes.

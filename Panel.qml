@@ -19,6 +19,7 @@ Panel {
 
   property bool enabled: false
   property bool drag3fg: false
+  property bool swipeEmpty: true
   property var rules: []
   property string error: ""
   property bool loaded: false
@@ -38,7 +39,12 @@ Panel {
 
   function commit(next) {
     rules = next
-    run(["save"].concat(Catalog.serialize(next)))
+    run(["save"].concat(Catalog.serialize(next), ["option swipe_empty " + (swipeEmpty ? "on" : "off")]))
+  }
+
+  function setSwipeEmpty(on) {
+    swipeEmpty = on
+    commit(rules)
   }
 
   // Changing fingers or action can leave the direction invalid; snap it to the
@@ -83,6 +89,7 @@ Panel {
             var state = JSON.parse(helperStdout.text)
             root.enabled = state.enabled
             root.drag3fg = state.drag3fg
+            root.swipeEmpty = state.swipeEmpty
             root.rules = Catalog.parse(state.rules)
             root.loaded = true
           } catch (e) {
@@ -289,6 +296,47 @@ Panel {
               fontFamily: root.fontFamily
               bordered: true
               onClicked: root.commit(Catalog.presets.ios)
+            }
+          }
+
+          PanelSeparator { foreground: root.foreground }
+
+          Item {
+            width: column.width
+            implicitHeight: Math.max(swipeLabel.implicitHeight, swipeSwitch.implicitHeight)
+
+            Column {
+              id: swipeLabel
+              anchors.left: parent.left
+              anchors.right: swipeSwitch.left
+              anchors.rightMargin: Style.space(12)
+              anchors.verticalCenter: parent.verticalCenter
+              spacing: Style.space(2)
+
+              Text {
+                textFormat: Text.PlainText
+                text: "Slide through empty workspaces"
+                color: root.foreground
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.body
+              }
+
+              Note {
+                width: swipeLabel.width
+                text: root.swipeEmpty
+                  ? "On: sliding reaches 3, 4, 5… like Super+number, even with no windows there."
+                  : "Off: sliding stops at the last workspace that has windows."
+              }
+            }
+
+            ToggleSwitch {
+              id: swipeSwitch
+              anchors.right: parent.right
+              anchors.verticalCenter: parent.verticalCenter
+              checked: root.swipeEmpty
+              busy: helperProcess.running
+              foreground: root.foreground
+              onToggled: root.setSwipeEmpty(!root.swipeEmpty)
             }
           }
 
