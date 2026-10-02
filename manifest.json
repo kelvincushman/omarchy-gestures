@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "kelvincushman.gestures",
+  "name": "Gestures",
+  "version": "0.1.0",
+  "author": "kelvincushman",
+  "license": "MIT",
+  "description": "Configure touchpad swipe and pinch gestures from the Omarchy bar.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Gestures",
+    "description": "Map 3- and 4-finger swipes and pinches to workspaces, the app launcher, window actions, volume and more.",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

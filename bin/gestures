@@ -1,0 +1,71 @@
+#!/bin/bash
+# Gestures panel helper: read state, save gestures, and turn the loader on or off.
+#
+#   gestures status              JSON: enabled, drag3fg, rules
+#   gestures save "3 left apps"  replace all gestures (one argument per gesture)
+#   gestures enable | disable    add or remove the loader line in hyprland.lua
+
+set -euo pipefail
+
+conf="$HOME/.config/omarchy/gestures.conf"
+hyprland="$HOME/.config/hypr/hyprland.lua"
+marker="-- kelvincushman.gestures"
+
+enabled() {
+  [[ -f $hyprland ]] && grep -qF -- "$marker" "$hyprland"
+}
+
+reload() {
+  hyprctl reload >/dev/null
+  local errors
+  errors=$(hyprctl configerrors)
+  if [[ -n ${errors//[[:space:]]/} ]]; then
+    echo "$errors" >&2
+    exit 1
+  fi
+}
+
+case "${1-}" in
+  status)
+    rules=$( [[ -f $conf ]] && grep -E '^[0-9]+ [a-z]+ [a-z_]+$' "$conf" || true)
+    drag=$(hyprctl getoption input:touchpad:drag_3fg -j | jq '.int // 0')
+    jq -n --argjson enabled "$(enabled && echo true || echo false)" --argjson drag "$drag" --arg rules "$rules" \
+      '{ enabled: $enabled, drag3fg: ($drag > 0), rules: ($rules | split("\n") | map(select(. != ""))) }'
+    ;;
+  save)
+    shift
+    for rule in "$@"; do
+      [[ $rule =~ ^[2-5]\ [a-z]+\ [a-z_]+$ ]] || { echo "Invalid gesture: $rule" >&2; exit 1; }
+    done
+    mkdir -p "$(dirname "$conf")"
+    tmp=$(mktemp "$conf.XXXXXX")
+    { echo "# Managed by the Gestures panel: <fingers> <direction> <action>"; printf '%s\n' "$@"; } >"$tmp"
+    mv "$tmp" "$conf"
+    if enabled; then reload; fi
+    ;;
+  enable)
+    enabled && exit 0
+    cp "$hyprland" "$hyprland.bak.$(date +%s)"
+    cat >>"$hyprland" <<EOF_LUA
+
+$marker: touchpad gestures from the Gestures panel.
+local gestures = os.getenv("HOME") .. "/.config/omarchy/plugins/kelvincushman.gestures/hypr/gestures.lua"
+local gestures_file = io.open(gestures, "r")
+if gestures_file then gestures_file:close(); dofile(gestures) end
+EOF_LUA
+    reload
+    ;;
+  disable)
+    enabled || exit 0
+    cp "$hyprland" "$hyprland.bak.$(date +%s)"
+    # Drop the marker comment and the three loader lines that follow it.
+    sed -i "/^${marker}:/,+3d" "$hyprland"
+    # Remove the blank line enable added before the marker, if it is now trailing.
+    sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$hyprland"
+    reload
+    ;;
+  *)
+    echo "Usage: gestures status | save <rule>... | enable | disable" >&2
+    exit 2
+    ;;
+esac
