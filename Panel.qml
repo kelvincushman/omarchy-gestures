@@ -324,7 +324,7 @@ Panel {
               Note {
                 width: swipeLabel.width
                 text: root.swipeEmpty
-                  ? "On: sliding reaches every workspace up to 10, like Super+number, even with no windows there."
+                  ? "On: sliding reaches 3, 4, 5… like Super+number, even with no windows there."
                   : "Off: sliding stops at the last workspace that has windows."
               }
             }

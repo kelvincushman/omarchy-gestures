@@ -3,7 +3,7 @@
 -- Gestures are stored as data in ~/.config/omarchy/gestures.conf, one per line:
 --   <fingers> <direction> <action>
 -- plus optional settings lines:
---   option swipe_empty on|off   slide through empty workspaces up to 10 (default on)
+--   option swipe_empty on|off   slide through empty workspaces (default on)
 -- Every field is checked against the fixed lists below, so the file can never
 -- inject code into the compositor config. Unknown lines are skipped.
 
@@ -112,12 +112,6 @@ file:close()
 
 hl.config({ gestures = { workspace_swipe_use_r = swipe_empty } })
 
--- Hyprland has no upper limit for that swipe, but Omarchy stops at 10
--- (Super+0, and the bar never shows 11+). Send anything past 10 back.
-if swipe_empty then
-  hl.on("workspace.active", function(workspace)
-    if workspace and workspace.id > 10 then
-      hl.dispatch(hl.dsp.focus({ workspace = "10" }))
-    end
-  end)
-end
+-- Do not switch workspaces from a "workspace.active" handler to cap this at 10:
+-- the event fires while Hyprland 0.56.2 is still finishing the swipe, and
+-- switching again there crashed the compositor at gesture end.

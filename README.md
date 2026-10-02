@@ -39,9 +39,8 @@ Click the hand icon in the bar, then flip the switch to turn gestures on.
   - volume, brightness, screenshot
 
 **Slide through empty workspaces** (on by default) lets a workspace swipe
-reach every workspace up to 10, like Super+number, even when they have no
-windows. Hyprland has no upper limit for this, so a swipe past 10 slides back
-to 10 by itself.
+reach 3, 4, 5 and so on, like Super+number, even when they have no windows.
+Hyprland has no upper limit for this, so it can continue past 10.
 Hyprland's own behaviour, which you get by turning it off, stops at the last
 workspace that has windows.
 
