@@ -315,7 +315,7 @@ Panel {
 
               Text {
                 textFormat: Text.PlainText
-                text: "Slide through empty workspaces"
+                text: "Slide through workspaces 1–10"
                 color: root.foreground
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.body
@@ -324,8 +324,8 @@ Panel {
               Note {
                 width: swipeLabel.width
                 text: root.swipeEmpty
-                  ? "On: sliding reaches 3, 4, 5… like Super+number, even with no windows there."
-                  : "Off: sliding stops at the last workspace that has windows."
+                  ? "On: workspaces 1–10 always exist, so sliding goes through all of them and stops at 1 and 10. The bar shows all ten."
+                  : "Off: Hyprland's own behaviour, which stops at the last workspace that has windows."
               }
             }
 

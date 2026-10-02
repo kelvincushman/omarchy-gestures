@@ -38,10 +38,10 @@ Click the hand icon in the bar, then flip the switch to turn gestures on.
   - scratchpad, zoom
   - volume, brightness, screenshot
 
-**Slide through empty workspaces** (on by default) lets a workspace swipe
-reach 3, 4, 5 and so on, like Super+number, even when they have no windows.
-Hyprland has no upper limit for this, so it can continue past 10.
-Hyprland's own behaviour, which you get by turning it off, stops at the last
+**Slide through workspaces 1–10** (on by default) keeps workspaces 1–10
+always in existence, like Super+number, so a workspace swipe goes through
+empty ones too and stops at 1 and at 10. The bar then always shows all ten.
+Turning it off gives Hyprland's own behaviour, which stops at the last
 workspace that has windows.
 
 The panel flags gestures that would clash, for example "left" on the same

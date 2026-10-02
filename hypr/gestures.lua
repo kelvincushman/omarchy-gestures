@@ -3,7 +3,7 @@
 -- Gestures are stored as data in ~/.config/omarchy/gestures.conf, one per line:
 --   <fingers> <direction> <action>
 -- plus optional settings lines:
---   option swipe_empty on|off   slide through empty workspaces (default on)
+--   option swipe_empty on|off   slide through workspaces 1-10, stopping at both ends (default on)
 -- Every field is checked against the fixed lists below, so the file can never
 -- inject code into the compositor config. Unknown lines are skipped.
 
@@ -84,6 +84,7 @@ end
 
 -- On by default: Omarchy treats workspaces 1-10 as fixed (Super+1...), but
 -- Hyprland's swipe otherwise stops at the first empty workspace.
+-- Off leaves Hyprland's own swipe behaviour untouched.
 local swipe_empty = true
 
 for line in file:lines() do
@@ -110,8 +111,14 @@ end
 
 file:close()
 
-hl.config({ gestures = { workspace_swipe_use_r = swipe_empty } })
-
--- Do not switch workspaces from a "workspace.active" handler to cap this at 10:
--- the event fires while Hyprland 0.56.2 is still finishing the swipe, and
--- switching again there crashed the compositor at gesture end.
+-- Keep workspaces 1-10 alive so the swipe walks through empty ones and stops
+-- at both ends, using only Hyprland settings. With "create new" off, the
+-- neighbour past 10 wraps to 1 (and past 1 to 10), which Hyprland treats as a
+-- wall. Never cap this by switching workspace from a "workspace.active"
+-- handler: that runs mid-swipe and crashed Hyprland 0.56.2 at gesture end.
+if swipe_empty then
+  for id = 1, 10 do
+    hl.workspace_rule({ workspace = tostring(id), persistent = true })
+  end
+  hl.config({ gestures = { workspace_swipe_use_r = false, workspace_swipe_create_new = false } })
+end
