@@ -3,7 +3,7 @@
   "id": "kelvincushman.gestures",
   "name": "Gestures",
   "version": "0.1.0",
-  "author": "kelvincushman",
+  "author": "Kelvin Lee",
   "license": "MIT",
   "description": "Configure touchpad swipe and pinch gestures from the Omarchy bar.",
   "kinds": [
