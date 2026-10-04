@@ -18,6 +18,21 @@ local function focus(target)
   return function() hl.dispatch(hl.dsp.focus(target)) end
 end
 
+-- Zoom steps by whole levels like Omarchy's Super+Ctrl+Z, between 1x and 10x.
+-- Hyprland's own cursor_zoom gesture only ever multiplies, so it can't undo itself.
+local function zoom_by(step)
+  return function()
+    local zoom = hl.get_config("cursor.zoom_factor") or 1
+    hl.config({ cursor = { zoom_factor = math.max(1, math.min(10, zoom + step)) } })
+  end
+end
+
+local function zoom_reset()
+  if (hl.get_config("cursor.zoom_factor") or 1) ~= 1 then
+    hl.config({ cursor = { zoom_factor = 1 } })
+  end
+end
+
 local axes = { horizontal = true, vertical = true }
 local pinches = { pinch = true, pinchin = true, pinchout = true }
 
@@ -43,7 +58,9 @@ local actions = {
   fullscreen = { builtin = "fullscreen" },
   maximize = { builtin = "fullscreen", extra = { mode = "maximize" } },
   scratchpad = { builtin = "special", extra = { workspace_name = "scratchpad" } },
-  zoom = { builtin = "cursor_zoom", extra = { zoom_level = 2.0, mode = "mult" }, dirs = pinches },
+  zoom = { fn = zoom_by(1), dirs = pinches, zooms = true }, -- zoom in; name kept for older files
+  zoom_out = { fn = zoom_by(-1), dirs = pinches, zooms = true },
+  zoom_reset = { fn = zoom_reset, dirs = pinches, zooms = true },
 
   workspace_next = { fn = focus({ workspace = "e+1" }) },
   workspace_prev = { fn = focus({ workspace = "e-1" }) },
@@ -68,6 +85,7 @@ if not file then
 end
 
 local taken = {}
+local zooms = false
 
 local function claim(fingers, direction)
   taken[fingers] = taken[fingers] or {}
@@ -106,10 +124,17 @@ for line in file:lines() do
       gesture[k] = v
     end
     hl.gesture(gesture)
+    zooms = zooms or action.zooms
   end
 end
 
 file:close()
+
+-- With any zoom gesture in use, Escape always returns to 1x. The bind is
+-- non-consuming, so apps still receive the Escape key as normal.
+if zooms then
+  hl.bind("Escape", zoom_reset, { non_consuming = true, description = "Reset zoom" })
+end
 
 -- Keep workspaces 1-10 alive so the swipe walks through empty ones and stops
 -- at both ends, using only Hyprland settings. With "create new" off, the

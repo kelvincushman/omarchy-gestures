@@ -46,7 +46,9 @@ var actionOptions = [
   { value: "fullscreen", label: "Toggle fullscreen" },
   { value: "maximize", label: "Toggle maximize" },
   { value: "scratchpad", label: "Toggle scratchpad" },
-  { value: "zoom", label: "Toggle zoom", dirs: pinches },
+  { value: "zoom", label: "Zoom in", dirs: pinches },
+  { value: "zoom_out", label: "Zoom out", dirs: pinches },
+  { value: "zoom_reset", label: "Reset zoom", dirs: pinches },
   { value: "volume_up", label: "Volume up" },
   { value: "volume_down", label: "Volume down" },
   { value: "brightness_up", label: "Brightness up" },
@@ -70,7 +72,8 @@ var presets = {
     { fingers: "3", direction: "down", action: "menu_close" },
     { fingers: "4", direction: "left", action: "focus_left" },
     { fingers: "4", direction: "right", action: "focus_right" },
-    { fingers: "2", direction: "pinchout", action: "zoom" }
+    { fingers: "2", direction: "pinchout", action: "zoom" },
+    { fingers: "2", direction: "pinchin", action: "zoom_out" }
   ]
 }
 

@@ -23,7 +23,11 @@ Click the hand icon in the bar, then flip the switch to turn gestures on.
 | 3 fingers up | Open the app launcher |
 | 3 fingers down | Close the launcher / menu |
 | 4 fingers left / right | Focus the window on that side |
-| 2-finger pinch out | Toggle zoom |
+| 2-finger pinch out | Zoom in |
+| 2-finger pinch in | Zoom out |
+
+Each pinch zooms one step, up to 10x. Whenever a zoom gesture is mapped,
+**Escape** resets the zoom to normal. Apps still get the Escape key too.
 
 ## What you can map
 
@@ -35,7 +39,7 @@ Click the hand icon in the bar, then flip the switch to turn gestures on.
   - workspaces: slide between, next, previous, last used
   - Omarchy: app launcher, Omarchy menu, close the launcher or menu
   - windows: focus a neighbour, move, resize, close, float, fullscreen, maximize
-  - scratchpad, zoom
+  - scratchpad, zoom in, zoom out, reset zoom
   - volume, brightness, screenshot
 
 **Slide through workspaces 1–10** (on by default) keeps workspaces 1–10
